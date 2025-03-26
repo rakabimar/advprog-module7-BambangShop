@@ -1,6 +1,6 @@
 # BambangShop Publisher App
 Tutorial and Example for Advanced Programming 2024 - Faculty of Computer Science, Universitas Indonesia
-
+Rakabima Ghaniendra Rusdianto - Advanced Programming A - 2306228472
 ---
 
 ## About this Project
@@ -48,15 +48,15 @@ You can install Postman via this website: https://www.postman.com/downloads/
     (You might want to use `cargo check` if you only need to verify your work without running the app.)
 
 ## Mandatory Checklists (Publisher)
--   [ ] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
+-   [x] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
 -   **STAGE 1: Implement models and repositories**
-    -   [ ] Commit: `Create Subscriber model struct.`
-    -   [ ] Commit: `Create Notification model struct.`
-    -   [ ] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
-    -   [ ] Commit: `Implement add function in Subscriber repository.`
-    -   [ ] Commit: `Implement list_all function in Subscriber repository.`
-    -   [ ] Commit: `Implement delete function in Subscriber repository.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
+    -   [x] Commit: `Create Subscriber model struct.`
+    -   [x] Commit: `Create Notification model struct.`
+    -   [x] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
+    -   [x] Commit: `Implement add function in Subscriber repository.`
+    -   [x] Commit: `Implement list_all function in Subscriber repository.`
+    -   [x] Commit: `Implement delete function in Subscriber repository.`
+    -   [x] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
     -   [ ] Commit: `Create Notification service struct skeleton.`
     -   [ ] Commit: `Implement subscribe function in Notification service.`
@@ -77,6 +77,28 @@ This is the place for you to write reflections:
 ### Mandatory (Publisher) Reflections
 
 #### Reflection Publisher-1
+##### 1. Observer Pattern: Subscriber as Interface vs. Model Struct
+In the Observer pattern (as presented in Head First Design Patterns), the Subscriber is defined as an interface so that different concrete implementations can subscribe and react differently to notifications. In this BambangShop case, a single `Subscriber` model struct is defined without a dedicated trait.
+- **Why a single model can be enough:**  
+  This application currently requires only one kind of subscriber behavior – storing the subscriber’s URL and name – and there is no need for multiple polymorphic subscriber types.
+- **When to consider an interface (trait in Rust):**  
+  If in the future the app need to support various kinds of subscribers (e.g., email subscribers, SMS subscribers, etc.), then defining a `Subscriber` trait would be beneficial. For now, a single model struct meets the requirements.
+
+##### 2. Data Structure for Unique Identifiers: Vec vs. DashMap
+In this application, the `id` in `Product` and the `url` in `Subscriber` are intended to be unique identifiers.
+- **Using a Vec (list):**  
+  While a Vec can store a list of items, checking for uniqueness or performing lookups requires iterating over the entire list (O(n) complexity). This becomes inefficient as the data grows.
+- **Using DashMap (map/dictionary):**  
+  DashMap provides constant-time (O(1)) lookup, insertion, and deletion. This makes it much more suitable for enforcing uniqueness and handling concurrency. The choice of using DashMap ensures fast access and better scalability, especially when uniqueness is crucial.
+
+##### 3. Thread Safety: DashMap vs. Singleton Pattern
+Rust’s compiler enforces strict thread-safety guarantees, but when dealing with mutable global state (such as this app's static list of subscribers), it needs a thread-safe container.
+- **DashMap:**  
+  DashMap is a concurrent hash map that provides built-in synchronization, allowing multiple threads to safely read and write without manual locking.
+- **Singleton Pattern:**  
+  The Singleton pattern can ensure that only one instance of a structure exists (e.g., our global database of subscribers). However, it does not inherently guarantee thread safety for concurrent modifications.
+- **Conclusion:**  
+  The app still need DashMap (or another thread-safe collection) even if the Singleton pattern is implemented, because thread safety is about protecting concurrent access. The use of DashMap in the `SubscriberRepository` ensures that the global state is safely accessible across threads.
 
 #### Reflection Publisher-2
 
