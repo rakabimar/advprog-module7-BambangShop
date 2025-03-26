@@ -1,8 +1,7 @@
 # BambangShop Publisher App
 Tutorial and Example for Advanced Programming 2024 - Faculty of Computer Science, Universitas Indonesia
-Rakabima Ghaniendra Rusdianto - Advanced Programming A - 2306228472
 ---
-
+### Rakabima Ghaniendra Rusdianto - Advanced Programming A - 2306228472
 ## About this Project
 In this repository, we have provided you a REST (REpresentational State Transfer) API project using Rocket web framework.
 
@@ -101,5 +100,36 @@ Rust’s compiler enforces strict thread-safety guarantees, but when dealing wit
   The app still need DashMap (or another thread-safe collection) even if the Singleton pattern is implemented, because thread safety is about protecting concurrent access. The use of DashMap in the `SubscriberRepository` ensures that the global state is safely accessible across threads.
 
 #### Reflection Publisher-2
+##### 1. Why Separate “Service” and “Repository” from the Model?
+In the traditional MVC pattern, the Model often encompasses both data storage and business logic. However, separating the Service and Repository layers provides several benefits:
+- **Separation of Concerns:**
+    - The **Repository** handles all data access and persistence logic (e.g., our `ProductRepository` and `SubscriberRepository` use DashMap for thread-safe storage).
+    - The **Service** layer encapsulates business logic and workflows (e.g., our `NotificationService` and `PaymentServiceImpl` coordinate data manipulation and enforce business rules).
+- **Improved Maintainability:**
+    - Changes to data access (such as moving from an in‑memory store to a database) affect only the Repository without impacting business logic.
+    - Business rules and interactions (like cascading status updates from Payment to Order) are maintained in the Service layer, making the system easier to evolve and test.
+- **Enhanced Testability:**
+    - With distinct layers, you can test business logic in the Service layer independently from persistence logic. This results in cleaner, more focused unit tests.
 
+##### 2. Consequences of Using Only the Model
+If all the responsibilities are combined into a single Model:
+- **Increased Complexity:**
+    - A model that handles data storage, business logic, and even presentation concerns becomes bloated and harder to maintain. For example, a `Product` model that includes persistence methods (like `save()` or `findAll()`) and business rules (like calculating discounts) can quickly become entangled.
+- **Tight Coupling:**
+    - Without separation, changes in how data is stored or how business logic is processed would force modifications in the model itself. For instance, if both `Subscriber` and `Notification` models contain logic to manage subscription status, changes in subscription rules could affect both models, leading to code duplication and bugs.
+- **Difficult Testing and Reuse:**
+    - When a single model handles multiple responsibilities, writing isolated tests becomes challenging. The interactions between, for example, the `Program`, `Subscriber`, and `Notification` models can result in complex interdependencies, increasing the chance of regression errors and making future modifications risky.
+
+##### 3. Exploring Postman for Testing
+I have explored Postman extensively, and it has proven to be an invaluable tool for testing my application. In this BambangShop project:
+- **HTTP Request Simulation:**
+    - Postman allows me to simulate various HTTP requests (GET, POST, DELETE, etc.) and easily verify that endpoints behave as expected. For example, I can quickly test subscription and unsubscription routes defined in our `notification` controller.
+- **Response Validation:**
+    - With Postman, I can inspect response status codes, headers, and JSON bodies, which is critical for validating API behavior.
+- **Collection Management and Automation:**
+    - I can group API requests into collections (as seen in the provided Postman collection) and even automate tests with scripts. This organization makes it easier to share API test cases with my group and integrate them into CI/CD pipelines.
+- **Feature Interest:**
+    - I find features like automated testing, environment variables, and monitors particularly helpful. These allow for consistent testing across different environments (development, staging, production) and support future projects that require robust API testing.
+
+Overall, Postman not only speeds up the API testing process but also ensures that our endpoints work as intended before deploying changes.
 #### Reflection Publisher-3
