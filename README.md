@@ -133,3 +133,33 @@ I have explored Postman extensively, and it has proven to be an invaluable tool 
 
 Overall, Postman not only speeds up the API testing process but also ensures that our endpoints work as intended before deploying changes.
 #### Reflection Publisher-3
+##### 1. Observer Pattern Variation Used
+In this tutorial, we are using the **Push Model** of the Observer Pattern.
+- The **publisher** (NotificationService) actively sends (pushes) a notification payload to each subscriber via the `update` method.
+- For example, in our code snippet:
+  ```rust
+  for subscriber in subscribers {
+      let payload_clone = payload.clone();
+      let subscriber_clone = subscriber.clone();
+      thread::spawn(move || subscriber_clone.update(payload_clone));
+  }
+  ```
+  The publisher pushes notifications immediately to all subscribers using multiple threads.
+
+##### 2. Advantages and Disadvantages of Using the Pull Model
+If we used the Pull Model instead (where subscribers pull notifications from the publisher), we would see these differences:
+- **Advantages:**
+  - **Decoupled Timing:** Subscribers control when to poll for updates, potentially smoothing out load.
+  - **Reduced Publisher Overhead:** The publisher doesn't need to manage threading or push logic, leading to simpler code on that side.
+- **Disadvantages:**
+  - **Increased Latency:** Subscribers may experience delays as they periodically poll for updates instead of receiving them in real time. 
+  - **Polling Overhead:** Frequent polling by many subscribers can generate unnecessary network traffic and processing load on the publisher. 
+  - **Complex Synchronization:** Managing consistency and freshness of data can become more complex in a pull-based approach.
+
+##### 3. Impact of Not Using Multi-threading in the Notification Process
+If we decide not to use multi-threading when sending notifications:
+- **Sequential Processing:** All notifications would be sent one-by-one. If one subscriber is slow or unresponsive, it delays notifications for all others. 
+- **Performance Bottleneck:** With many subscribers, processing notifications sequentially can significantly slow down the system. 
+- **User Experience Degradation:** Delays in delivering notifications might lead to a poor user experience, as real-time updates become impractical.
+
+In summary, the push model combined with multi-threading ensures immediate and efficient notification delivery, whereas the pull model or a single-threaded push approach can introduce latency and performance issues.
